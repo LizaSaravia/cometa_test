@@ -1,0 +1,8 @@
+# Ignorar el entorno virtual
+env/
+
+# Ignorar archivos de Python compilados
+__pycache__/
+*.pyc
+
+# Otros archivos o carpetas que no desees subir (ajusta según tu proyecto)
