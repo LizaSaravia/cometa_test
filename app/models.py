@@ -1,7 +1,13 @@
-from pydantic import BaseModel
-from typing import Optional
+# app/models.py
 
-class Order(BaseModel):
-    order_id: int # que sea un entero
-    status: str  # Por ejemplo: "pendiente", "en preparación", "servido"
-    promotion: Optional[str] = None  # Puede tener promoción activa, p.ej.: "2x1"
+from pydantic import BaseModel
+from typing import List
+
+class Beer(BaseModel):
+    name: str
+    price: int
+    quantity: int
+
+class Stock(BaseModel):
+    last_updated: str
+    beers: List[Beer]
