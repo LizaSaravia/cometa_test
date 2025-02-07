@@ -1,30 +1,39 @@
 # app/main.py
 
 from fastapi import FastAPI, HTTPException
-from app.services.stock_service import fetch_stock
+from fastapi.middleware.cors import CORSMiddleware
+from app.services.order_service import fetch_order
 
 app = FastAPI(
-    title="Bar Stock API",
-    description="API para obtener el stock de cervezas en el bar.",
+    title="Bar Orders API",
+    description="API para obtener la información completa de una orden.",
     version="1.0.0"
 )
 
-@app.get("/stock", response_model=dict)
-def get_stock_endpoint():
+# Configuración de CORS para permitir solicitudes desde el frontend (localhost:3000)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/orders/{order_id}", response_model=dict)
+def get_order_status(order_id: int):
     """
-    Endpoint para obtener el stock de cervezas.
-    Devuelve la información en memoria con la estructura:
-    {
-        "last_updated": "2024-09-10 12:00:00",
-        "beers": [
-            { "name": "Corona", "price": 115, "quantity": 2 },
-            { "name": "Quilmes", "price": 120, "quantity": 0 },
-            { "name": "Club Colombia", "price": 110, "quantity": 3 }
-        ]
-    }
+    Endpoint para obtener la información completa de una orden.
+    Retorna una estructura con:
+      - order_id: int
+      - last_updated: str
+      - paid: bool
+      - subtotal: float
+      - taxes: float
+      - discounts: float
+      - items: list
+      - rounds: list (con cada round y sus items)
     """
-    stock = fetch_stock()
-    if not stock:
-        raise HTTPException(status_code=404, detail="Stock no encontrado")
-    # Para Pydantic v2 se recomienda usar model_dump(), o dict() si usas v1.
-    return stock.model_dump()
+    order = fetch_order(order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Orden no encontrada")
+    return order.model_dump()
