@@ -75,15 +75,21 @@ def test_get_bill():
     resp2 = client.post("/order", json=order2)
     assert resp1.status_code == 200, f"Expected 200, got {resp1.status_code}"
     assert resp2.status_code == 200, f"Expected 200, got {resp2.status_code}"
+    
     response = client.get("/bill")
     assert response.status_code == 200, f"Expected 200, got {response.status_code}"
     data = response.json()
-    assert "bill" in data
-    bill = data["bill"]
-    # Cada orden de 1 Corona (con promoción "2x1") cuesta 115.
-    # Por tanto, 115 + 115 = 230.
-    assert bill["total"] == 230, f"Expected total 230, got {bill['total']}"
-    breakdown = bill["breakdown"]
+    
+    # Validamos que la respuesta contenga las claves directamente
+    assert "total" in data, "Missing 'total' in bill response"
+    assert "breakdown_by_friend" in data, "Missing 'breakdown_by_friend' in bill response"
+    assert "equal_split" in data, "Missing 'equal_split' in bill response"
+    
+    # Verificamos el total
+    assert data["total"] == 230, f"Expected total 230, got {data['total']}"
+    
+    # Verificamos el desglose por amigo
+    breakdown = data["breakdown_by_friend"]
     assert breakdown.get("Rodrigo") == 115, f"Expected Rodrigo 115, got {breakdown.get('Rodrigo')}"
     assert breakdown.get("Ailen") == 115, f"Expected Ailen 115, got {breakdown.get('Ailen')}"
 

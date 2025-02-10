@@ -1,7 +1,7 @@
 // frontend/__tests__/Pages.test.tsx
 
 import '@testing-library/jest-dom';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import Home from '../src/pages/index';
 import Beers from '../src/pages/beers';
 import OrderPage from '../src/pages/order';
@@ -77,13 +77,13 @@ describe('Order Page', () => {
 // ----------------------
 // Test para la Página de Cuenta (Bill)
 // ----------------------
+
 describe('Bill Page', () => {
   it('renders loading state and then displays bill information when fetch succeeds', async () => {
     const fakeBill = {
-      bill: {
-        total: 230,
-        breakdown: { "Rodrigo": 115, "Ailen": 115 }
-      }
+      total: 230,
+      breakdown_by_friend: { "Rodrigo": 115, "Ailen": 115 },
+      equal_split: { "Rodrigo": 115, "Ailen": 115 }
     };
 
     (global.fetch as jest.Mock).mockResolvedValueOnce({
@@ -93,8 +93,41 @@ describe('Bill Page', () => {
 
     render(<BillPage />);
     expect(screen.getByText(/Cargando/i)).toBeInTheDocument();
+    
+    // Espera a que se muestre el total
     await waitFor(() => expect(screen.getByText(/Total de la cuenta/i)).toBeInTheDocument());
-    expect(screen.getByText(/230/)).toBeInTheDocument();
+    expect(screen.getByText(/\$230\.00/)).toBeInTheDocument();
+
+    // --- Verifica la sección "Desglose por amigo" ---
+    const breakdownSection = screen.getByText(/Desglose por amigo/i).closest('div');
+    expect(breakdownSection).toBeInTheDocument();
+
+    // Busca todos los elementos de lista dentro de esta sección
+    const listItemsBreakdown = within(breakdownSection!).getAllByRole('listitem');
+
+    // Busca el elemento que contenga "Rodrigo"
+    const rodriItemBreakdown = listItemsBreakdown.find(item => item.textContent?.includes("Rodrigo"));
+    expect(rodriItemBreakdown).toBeDefined();
+    expect(rodriItemBreakdown).toHaveTextContent("$115.00");
+
+    // Busca el elemento que contenga "Ailen"
+    const ailenItemBreakdown = listItemsBreakdown.find(item => item.textContent?.includes("Ailen"));
+    expect(ailenItemBreakdown).toBeDefined();
+    expect(ailenItemBreakdown).toHaveTextContent("$115.00");
+
+    // --- Verifica la sección "División equitativa" ---
+    const equalSplitSection = screen.getByText(/División equitativa/i).closest('div');
+    expect(equalSplitSection).toBeInTheDocument();
+
+    const listItemsEqualSplit = within(equalSplitSection!).getAllByRole('listitem');
+
+    const rodriItemEqual = listItemsEqualSplit.find(item => item.textContent?.includes("Rodrigo"));
+    expect(rodriItemEqual).toBeDefined();
+    expect(rodriItemEqual).toHaveTextContent("$115.00");
+
+    const ailenItemEqual = listItemsEqualSplit.find(item => item.textContent?.includes("Ailen"));
+    expect(ailenItemEqual).toBeDefined();
+    expect(ailenItemEqual).toHaveTextContent("$115.00");
   });
 });
 
