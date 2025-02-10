@@ -98,8 +98,10 @@ El frontend consta de varias páginas que te permiten interactuar con la API:
 
 ### Backend
 Desde la raíz del proyecto, ejecuta:
-      pytest
+    ```bash
+    pytest
 
 ### Frontend
 Desde la carpeta frontend, ejecuta:
-      npm run test
+    ```bash
+   npm run test
