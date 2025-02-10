@@ -1,5 +1,3 @@
-# app/main.py
-
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from app.services.order_service import fetch_order, receive_order, calculate_bill
@@ -39,7 +37,7 @@ def get_order_status(order_id: int):
     order = fetch_order(order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Orden no encontrada")
-    return order.model_dump()
+    return order.model_dump()  # Asegúrate de que model_dump esté bien implementado en el modelo de OrderInput.
 
 @app.get("/beers")
 def list_beers():
@@ -54,9 +52,15 @@ def receive_order_endpoint(order: OrderInput):
 
 @app.get("/bill")
 def get_bill():
-    """Calcula y retorna la cuenta total y el desglose por amigo según consumo."""
+    """Calcula y retorna la cuenta total, desglose por amigo y opción de división equitativa."""
     bill = calculate_bill()
-    return {"bill": bill}
+    
+    # Se eliminó el print para producción
+    return {
+        "total": bill.get("total", 0),
+        "breakdown_by_friend": bill.get("breakdown", {}),
+        "equal_split": bill.get("split_equally", {})
+    }
 
 @app.post("/pay")
 def pay_bill(payment: PaymentInput):

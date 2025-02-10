@@ -1,4 +1,3 @@
-# app/services/order_service.py
 from app.repositories.order_repository import save_order, get_all_orders
 from app.data import calculate_line_total, update_stock
 from app.models import OrderInput
@@ -23,23 +22,38 @@ def receive_order(order: dict) -> dict:
     try:
         update_stock(order)
     except Exception as e:
-        raise HTTPException(400, str(e))
+        raise HTTPException(400, f"Error al actualizar stock: {str(e)}")
     return save_order(order)
 
 def calculate_bill() -> dict:
     """
-    Calcula la cuenta total y el desglose por amigo basándose en las órdenes.
-    Para cada item, utiliza calculate_line_total para aplicar promociones.
+    Calcula la cuenta total y muestra dos opciones:
+    - El desglose por amigo (según su consumo).
+    - La cuenta dividida en partes iguales entre los amigos.
     """
     total = 0
     breakdown = {}
     orders = get_all_orders()
+
+    # Sumar lo que consumió cada amigo
     for order in orders:
         friend = order.get("friend")
+        if not friend:
+            continue  # Si no hay un amigo asociado a la orden, lo saltamos.
+        
         if friend not in breakdown:
             breakdown[friend] = 0
         for item in order.get("items", []):
             line_total = calculate_line_total(item.get("name"), item.get("quantity", 0))
             breakdown[friend] += line_total
             total += line_total
-    return {"total": total, "breakdown": breakdown}
+
+    # Dividir la cuenta en partes iguales
+    num_friends = len(breakdown) if breakdown else 3  # Usar 3 amigos por defecto si no hay registros
+    split_equally = {friend: round(total / num_friends, 2) for friend in breakdown}
+
+    return {
+        "total": round(total, 2),
+        "breakdown": breakdown,  # Desglose por consumo
+        "split_equally": split_equally  # Cuenta dividida en partes iguales
+    }

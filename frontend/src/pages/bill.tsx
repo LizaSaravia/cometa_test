@@ -6,11 +6,9 @@ type BillBreakdown = {
 };
 
 type BillData = {
-  bill: {
-    total: number;
-    breakdown: BillBreakdown;
-  };
-  equal_share: number;
+  total: number;
+  breakdown_by_friend: BillBreakdown;
+  equal_split: BillBreakdown;
 };
 
 export default function BillPage() {
@@ -41,22 +39,33 @@ export default function BillPage() {
       <NavBar />
       <div className="max-w-lg mx-auto p-8 bg-white rounded-lg shadow-md">
         <h1 className="text-3xl font-bold text-primary mb-4">Cuenta</h1>
+
         {error && <p className="text-red-500">{error}</p>}
         {!error && !billData && <p>Cargando...</p>}
+
         {billData && (
           <>
             <p className="text-lg mb-4">
-              <strong>Total de la cuenta:</strong> {billData.bill.total}
+              <strong>Total de la cuenta:</strong> ${billData.total.toFixed(2)}
             </p>
-            <div>
-              <p className="text-sm text-gray-500 mb-4">
-                Nota: Las promociones se aplican automáticamente (ej. 2x1 en Corona).
-              </p>
+
+            <div className="mb-4">
               <h2 className="font-semibold mb-2">Desglose por amigo:</h2>
               <ul className="list-disc ml-6">
-                {Object.entries(billData.bill.breakdown).map(([friend, amount], index) => (
-                  <li key={index}>
-                    {friend}: {amount}
+                {Object.entries(billData.breakdown_by_friend).map(([friend, amount]) => (
+                  <li key={friend} className="text-gray-700">
+                    {friend}: <strong>${amount.toFixed(2)}</strong>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="bg-gray-100 p-4 rounded-lg">
+              <h2 className="font-semibold">División equitativa:</h2>
+              <ul className="list-disc ml-6">
+                {Object.entries(billData.equal_split).map(([friend, amount]) => (
+                  <li key={friend} className="text-gray-700">
+                    {friend}: <strong>${amount.toFixed(2)}</strong>
                   </li>
                 ))}
               </ul>
