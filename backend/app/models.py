@@ -25,3 +25,18 @@ class Order(BaseModel):
     discounts: float
     items: List[OrderRoundItem]  # Items adicionales, en este ejemplo es una lista vacía.
     rounds: List[OrderRound]
+    
+# Modelo para un item de orden (lo que ordena un amigo)
+class OrderItem(BaseModel):
+    name: str
+    quantity: int
+
+# Modelo para recibir una orden
+class OrderInput(BaseModel):
+    friend: str
+    items: List[OrderItem]
+
+# Modelo para el pago
+class PaymentInput(BaseModel):
+    friend: str
+    amount: float

@@ -2,7 +2,10 @@
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from app.services.order_service import fetch_order
+from app.services.order_service import fetch_order, receive_order, calculate_bill
+from app.data import AVAILABLE_BEER
+from app.models import OrderInput, PaymentInput
+from app.data import PAYMENTS
 
 app = FastAPI(
     title="Bar Orders API",
@@ -37,3 +40,26 @@ def get_order_status(order_id: int):
     if not order:
         raise HTTPException(status_code=404, detail="Orden no encontrada")
     return order.model_dump()
+
+@app.get("/beers")
+def list_beers():
+    """Lista la cerveza disponible (incluyendo stock actualizado)."""
+    return AVAILABLE_BEER
+
+@app.post("/order")
+def receive_order_endpoint(order: OrderInput):
+    """Recibe una orden y actualiza el stock."""
+    saved_order = receive_order(order.dict())
+    return {"message": "Orden recibida", "order": saved_order}
+
+@app.get("/bill")
+def get_bill():
+    """Calcula y retorna la cuenta total y el desglose por amigo según consumo."""
+    bill = calculate_bill()
+    return {"bill": bill}
+
+@app.post("/pay")
+def pay_bill(payment: PaymentInput):
+    """Registra un pago (sin conexión a pasarela de pago)."""
+    PAYMENTS.append(payment.dict())
+    return {"message": "Pago registrado", "payment": payment.dict()}
