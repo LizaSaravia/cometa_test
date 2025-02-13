@@ -1,7 +1,5 @@
-# app/data.py
 from datetime import datetime
 
-# Stock inicial con promoción para "Corona"
 AVAILABLE_BEER = {
     "last_updated": "2024-09-10 12:00:00",
     "beers": [
@@ -12,8 +10,8 @@ AVAILABLE_BEER = {
 }
 
 # Bases de datos en memoria para órdenes y pagos
-ORDERS = []  # Cada orden es un dict con "friend" y "items"
-PAYMENTS = []  # Cada pago es un dict
+ORDERS = []  
+PAYMENTS = []  
 
 def get_beer_price(name: str) -> float:
     """Devuelve el precio base de la cerveza (búsqueda case-insensitive)."""

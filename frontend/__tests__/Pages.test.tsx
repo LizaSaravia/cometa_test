@@ -1,5 +1,3 @@
-// frontend/__tests__/Pages.test.tsx
-
 import '@testing-library/jest-dom';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import Home from '../src/pages/index';

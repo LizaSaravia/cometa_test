@@ -38,10 +38,6 @@ export default function Payment() {
     <div className="min-h-screen bg-gray-50">
       <NavBar />
       <div className="max-w-md mx-auto p-8 bg-white rounded-lg shadow-md">
-        {/* Enlace para volver a Inicio */}
-        <div className="mb-4">
-          <a href="/" className="text-blue-500 hover:underline">← Volver a Inicio</a>
-        </div>
         <h1 className="text-3xl font-bold text-primary mb-6 text-center">
           Interfaz de Pago
         </h1>
